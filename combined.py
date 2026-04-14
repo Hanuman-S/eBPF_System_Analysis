@@ -493,6 +493,10 @@ while True:
         process_cpu(b)
         process_fs(b)
         process_mem(b)      
+
+        for pid in set(list(prev_cpu.keys()) + list(prev_fs.keys()) + list(prev_mem.keys())):
+            name = get_proc_name(pid)
+            detector.finish_window(pid, name)
     except KeyboardInterrupt:
         print("\nStopping...")
         break
