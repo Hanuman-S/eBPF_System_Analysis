@@ -313,16 +313,20 @@ def process_cpu(b):
                     'invol_switches': v.invol_switches,
                 }
                 continue
-
-            detector.update_cpu(pid, name, {
-                "fork_delta":           fork_delta,
-                "exec_delta":           exec_delta,
-                "cpu_time_delta":       cpu_delta,
-                "ctx_switches_delta":   ctx_delta,
-                "invol_switches_delta": inv_delta,
-            })
         else:
-            fork_delta = exec_delta = cpu_delta = ctx_delta = inv_delta = 0
+            fork_delta  = v.fork_count    
+            exec_delta  = v.exec_count    
+            cpu_delta   = v.cpu_time_ns   
+            ctx_delta   = v.ctx_switches  
+            inv_delta   = v.invol_switches
+        
+        detector.update_cpu(pid, name, {
+            "fork_delta":           fork_delta,
+            "exec_delta":           exec_delta,
+            "cpu_time_delta":       cpu_delta,
+            "ctx_switches_delta":   ctx_delta,
+            "invol_switches_delta": inv_delta,
+        })
 
         prev_cpu[pid] = {
             'fork_count':    v.fork_count,
@@ -373,17 +377,20 @@ def process_fs(b):
                 continue
 
             sensitive = bool(v.sensitive_access)
-
-            detector.update_fs(pid, name, {
-                "open_delta":   open_delta,
-                "read_delta":   read_delta,
-                "write_delta":  write_delta,
-                "unlink_delta": unlink_delta,
-            }, sensitive=sensitive)
         else:
-            open_delta = read_delta = write_delta = unlink_delta = 0
-            sensitive  = False
+            open_delta   = v.open_count   
+            read_delta   = v.read_bytes   
+            write_delta  = v.write_bytes 
+            unlink_delta = v.unlink_count
+            sensitive  = bool(v.sensitive_access)
 
+        detector.update_fs(pid, name, {
+            "open_delta":   open_delta,
+            "read_delta":   read_delta,
+            "write_delta":  write_delta,
+            "unlink_delta": unlink_delta,
+        }, sensitive=sensitive)
+        
         prev_fs[pid] = {
             'open_count':   v.open_count,
             'read_bytes':   v.read_bytes,
